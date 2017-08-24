@@ -1,12 +1,17 @@
 const express = require("express");
-const path = require("path");
 const session = require("express-session");
 const sessionConfig = require("./sessionConfig");
 const logger = require("morgan");
-const app = express();
-const port = process.env.PORT || 8000;
+const authRoutes = require("./routes/authRoutes");
+const userRoutes = require("./routes/userRoutes");
+const indexRoutes = require("./routes/indexRoutes");
+const users = require("./data");
 const mustacheExpress = require("mustache-express");
 const bodyParser = require("body-parser");
+const checkAuth = require("./middlewares/checkAuth");
+const app = express();
+const path = require("path");
+const port = process.env.PORT || 8000;
 
 //Templating Engine
 app.engine("mustache", mustacheExpress());
@@ -19,19 +24,11 @@ app.use(logger("dev"));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session(sessionConfig));
 
-app.get("/", (req, res) => {
-    console.log(req.session);
-    res.render("home");
-});
 
-app.get("/signup", (req, res) => {
-    res.render("signup");
-});
-
-
-
-
-
+//Routes
+app.use("/", indexRoutes);
+app.use("/auth", authRoutes);
+app.use("/user", checkAuth, userRoutes);
 
 
 
